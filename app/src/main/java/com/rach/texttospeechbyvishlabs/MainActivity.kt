@@ -1,47 +1,174 @@
 package com.rach.texttospeechbyvishlabs
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.rach.texttospeechbyvishlabs.ui.theme.TextToSpeechByVishlabsTheme
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import com.rach.texttospeechbyvishlabs.component.AdvancedTTSManager
+import com.rach.texttospeechbyvishlabs.component.BottomNavBar
+import com.rach.texttospeechbyvishlabs.component.CustomTopAppBar
+import com.rach.texttospeechbyvishlabs.ui.theme.HabitChangeTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            TextToSpeechByVishlabsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            HabitChangeTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AdvancedTTSScreen()
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GreetingPreview() {
-    TextToSpeechByVishlabsTheme {
-        Greeting("Android")
+fun AdvancedTTSScreen() {
+    val context = LocalContext.current
+    val ttsManager = remember { AdvancedTTSManager(context) }
+    var selectedIndex by remember { mutableStateOf(0) }
+    var text by remember { mutableStateOf("") }
+    DisposableEffect(Unit) {
+        onDispose { ttsManager.shutdown() }
+    }
+
+
+
+
+
+    Scaffold(
+        topBar = {
+            CustomTopAppBar(
+                modifier = Modifier.fillMaxWidth(),
+                title = "Home"
+            )
+        },
+
+        floatingActionButtonPosition = FabPosition.Center,
+
+        bottomBar = {
+            BottomNavBar(
+                selectedItem = selectedIndex,
+                onItemSelected = { index ->
+                    selectedIndex = index
+                    when (index) {
+                        0 -> {}
+                        1 -> {
+                            ttsManager.stop()
+                        }
+
+                        2 -> {
+                            ttsManager.saveToDownloads(
+                                context = context,
+                                text = text,
+                                fileName = "tts_${System.currentTimeMillis()}"
+                            ) {
+                                Toast.makeText(
+                                    context,
+                                    "Saved in Download folder",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+
+                        3 -> {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    "Check out this app:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                )
+                            }
+                            context.startActivity(
+                                Intent.createChooser(shareIntent, "Share app via")
+                            )
+                        }
+
+                        4 -> {
+                            val intent = Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", context.packageName, null)
+                            )
+                            context.startActivity(intent)
+                        }
+                    }
+                }
+            )
+        }
+
+
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+                .semantics { contentDescription = "Text to Speech Screen" },
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Card(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text("Enter text") },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp)
+                )
+            }
+
+
+            Button(
+                onClick = { ttsManager.speak(text) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Play 🔊")
+            }
+
+
+        }
     }
 }
+
+
+
+
