@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.TextToSpeechByVishlabs" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Base.Theme.TextToSpeech" parent="Theme.AppCompat.DayNight.NoActionBar">
+    </style>
+    <style name="Base.Theme.TextToSpeech." parent="android:Theme.Material.Light.NoActionBar"/>
 </resources>
