@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Card
+import androidx.compose.material.TextButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -95,7 +97,6 @@ fun AdvancedTTSScreen() {
 
                         2 -> {
                             ttsManager.saveToDownloads(
-                                context = context,
                                 text = text,
                                 fileName = "tts_${System.currentTimeMillis()}"
                             ) {
@@ -142,17 +143,61 @@ fun AdvancedTTSScreen() {
                 .semantics { contentDescription = "Text to Speech Screen" },
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            var text by remember { mutableStateOf("") }
+            var showDialog by remember { mutableStateOf(false) }
+
+            val wordCount = text
+                .trim()
+                .split("\\s+".toRegex())
+                .filter { it.isNotEmpty() }
+                .size
+
             Card(
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(10.dp)
             ) {
                 OutlinedTextField(
                     value = text,
-                    onValueChange = { text = it },
+                    onValueChange = { newText ->
+                        val newWordCount = newText
+                            .trim()
+                            .split("\\s+".toRegex())
+                            .filter { it.isNotEmpty() }
+                            .size
+
+                        if (newWordCount <= 50) {
+                            text = newText
+                        } else {
+                            showDialog = true
+                        }
+                    },
                     label = { Text("Enter text") },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(10.dp)
+                )
+            }
+
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = { Text("Subscription Required") },
+                    text = {
+                        Text("You have exceeded 200 words. Please take a subscription to continue.")
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showDialog = false
+                            // Navigate to subscription screen
+                        }) {
+                            Text("Subscribe")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
                 )
             }
 
@@ -163,11 +208,12 @@ fun AdvancedTTSScreen() {
             ) {
                 Text("Play 🔊")
             }
-
-
         }
     }
 }
+
+
+
 
 
 
