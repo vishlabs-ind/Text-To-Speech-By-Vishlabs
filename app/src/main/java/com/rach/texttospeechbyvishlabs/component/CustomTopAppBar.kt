@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,7 +29,8 @@ fun CustomTopAppBar(
     title: String? = null,
     onNavigationIconClick: () -> Unit = {},
     titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
-    titleFontWeight: FontWeight = FontWeight.SemiBold
+    titleFontWeight: FontWeight = FontWeight.SemiBold,
+    onSettingsClick: () -> Unit
 ) {
 
     TopAppBar(
@@ -44,6 +46,14 @@ fun CustomTopAppBar(
                 )
             } else {
                 Text(text = "not Found")
+            }
+        },
+        actions = {
+            IconButton(onClick = onSettingsClick) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings"
+                )
             }
         },
         modifier = modifier,
@@ -79,7 +89,8 @@ private fun Preview() {
         CustomTopAppBar(
             modifier = Modifier.fillMaxWidth(),
             title = "Home",
-            onNavigationIconClick = {}
+            onNavigationIconClick = {},
+            onSettingsClick = {}
         )
     }
 }
