@@ -79,5 +79,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation("androidx.compose.material:material:1.6.8")
+    implementation ("com.google.android.gms:play-services-ads:23.6.0")
+
 
 }

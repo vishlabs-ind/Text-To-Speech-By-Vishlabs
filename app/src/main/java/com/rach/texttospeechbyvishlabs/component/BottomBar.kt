@@ -25,11 +25,11 @@ fun BottomNavBar(
                 onClick = { onItemSelected(0) },
                 icon = {
                     Image(
-                        painter = painterResource(com.rach.texttospeechbyvishlabs.R.drawable.add_circle_outline_svgrepo_com),
-                        contentDescription = "Add"
+                        painter = painterResource(com.rach.texttospeechbyvishlabs.R.drawable.icons8_home),
+                        contentDescription = "Home"
                     )
                 },
-                label = { Text("Add") }
+                label = { Text("Home") }
             )
 
             NavigationBarItem(
