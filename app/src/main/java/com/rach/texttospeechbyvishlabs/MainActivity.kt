@@ -606,11 +606,10 @@ enum class VoiceCategory {
 fun BannerAdView() {
     AndroidView(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp), // IMPORTANT
+            .fillMaxWidth(),
         factory = { context ->
             AdView(context).apply {
-                setAdSize(AdSize.BANNER)
+                setAdSize(AdSize.LARGE_BANNER)
                 adUnitId = "ca-app-pub-3940256099942544/6300978111"
                 loadAd(AdRequest.Builder().build())
             }
