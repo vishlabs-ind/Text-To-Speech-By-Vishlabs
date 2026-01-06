@@ -35,9 +35,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.rach.texttospeechbyvishlabs.component.AdvancedTTSManager
+import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.VolumeUp
+import androidx.compose.material.icons.outlined.Translate
+import androidx.compose.material.icons.outlined.PrivacyTip
+import androidx.compose.material.icons.outlined.Info
 import com.rach.texttospeechbyvishlabs.component.BottomNavBar
 import com.rach.texttospeechbyvishlabs.ui.theme.HabitChangeTheme
-import com.rach.texttospeechbyvishlabs.ui.theme.SettingsScreen
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -618,6 +622,106 @@ fun PrivacyPolicyScreen(
         }
     }
 }
+
+
+
+@Composable
+fun SettingsScreen(
+    paddingValues: PaddingValues,
+    onBackClick: () -> Unit,
+    onNavigateToLanguage: () -> Unit,
+    onNavigateToVoice: () -> Unit,
+    onNavigateToAbout: () -> Unit,
+    onNavigateToPrivacy: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+    ) {
+
+        BackTopBar(
+            title = "Settings",
+            onBackClick = onBackClick
+        )
+
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+
+            item {
+                SettingsItemCard(
+                    icon = Icons.Outlined.Translate,
+                    text = "Language Settings",
+                    onClick = onNavigateToLanguage
+                )
+            }
+
+            item {
+                SettingsItemCard(
+                    icon = Icons.Outlined.VolumeUp,
+                    text = "Voice Category",
+                    onClick = onNavigateToVoice
+                )
+            }
+
+            item {
+                SettingsItemCard(
+                    icon = Icons.Outlined.Info,
+                    text = "About",
+                    onClick = onNavigateToAbout
+                )
+            }
+
+            item {
+                SettingsItemCard(
+                    icon = Icons.Outlined.PrivacyTip,
+                    text = "Privacy Policy",
+                    onClick = onNavigateToPrivacy
+                )
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun SettingsItemCard(
+    icon: ImageVector,
+    text: String,
+    onClick: () -> Unit
+) {
+    ElevatedCard(
+        onClick = onClick,
+        shape = RoundedCornerShape(18.dp),
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(18.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
+}
+
 
 
 
