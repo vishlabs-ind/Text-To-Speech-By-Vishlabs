@@ -1,4 +1,4 @@
-package com.rach.texttospeechbyvishlabs.component
+package com.rach.texttospeechbyvishlabs.data.tts
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -8,7 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import com.rach.texttospeechbyvishlabs.VoiceCategory
+import com.rach.texttospeechbyvishlabs.domain.model.VoiceCategory
 import java.io.File
 import java.util.Locale
 
@@ -139,21 +139,29 @@ class AdvancedTTSManager(
         )
         val file = File(dir, "$fileName.wav")
 
+        val utteranceId = "SAVE_${System.currentTimeMillis()}"
+
         tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onDone(utteranceId: String?) {
-                Handler(Looper.getMainLooper()).post { onDone() }
+            override fun onDone(id: String?) {
+                if (id == utteranceId) {
+                    Handler(Looper.getMainLooper()).post {
+                        onDone()
+                        tts.setOnUtteranceProgressListener(null)
+                    }
+                }
             }
 
-            override fun onStart(utteranceId: String?) {}
-            override fun onError(utteranceId: String?) {}
+            override fun onStart(id: String?) {}
+            override fun onError(id: String?) {}
         })
 
         val params = Bundle().apply {
-            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "save")
+            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
         }
 
-        tts.synthesizeToFile(text, params, file, "save")
+        tts.synthesizeToFile(text, params, file, utteranceId)
     }
+
 
     fun stop() = tts.stop()
 

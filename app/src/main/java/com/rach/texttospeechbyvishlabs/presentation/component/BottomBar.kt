@@ -1,4 +1,4 @@
-package com.rach.texttospeechbyvishlabs.component
+package com.rach.texttospeechbyvishlabs.presentation.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.rach.texttospeechbyvishlabs.R
 
 @Composable
 fun BottomNavBar(
@@ -25,7 +26,7 @@ fun BottomNavBar(
                 onClick = { onItemSelected(0) },
                 icon = {
                     Image(
-                        painter = painterResource(com.rach.texttospeechbyvishlabs.R.drawable.icons8_home),
+                        painter = painterResource(R.drawable.icons8_home),
                         contentDescription = "Home"
                     )
                 },
@@ -37,7 +38,7 @@ fun BottomNavBar(
                 onClick = { onItemSelected(1) },
                 icon = {
                     Image(
-                        painter = painterResource(com.rach.texttospeechbyvishlabs.R.drawable.delete_svgrepo_com),
+                        painter = painterResource(R.drawable.delete_svgrepo_com),
                         contentDescription = "Clear"
                     )
                 },
@@ -49,7 +50,7 @@ fun BottomNavBar(
                 onClick = { onItemSelected(2) },
                 icon = {
                     Image(
-                        painter = painterResource(com.rach.texttospeechbyvishlabs.R.drawable.download_outline_svgrepo_com),
+                        painter = painterResource(R.drawable.download_outline_svgrepo_com),
                         contentDescription = "Save"
                     )
                 },
@@ -61,7 +62,7 @@ fun BottomNavBar(
                 onClick = { onItemSelected(3) },
                 icon = {
                     Image(
-                        painter = painterResource(com.rach.texttospeechbyvishlabs.R.drawable.share_svgrepo_com),
+                        painter = painterResource(R.drawable.share_svgrepo_com),
                         contentDescription = "Share"
                     )
                 },
@@ -73,7 +74,7 @@ fun BottomNavBar(
                 onClick = { onItemSelected(4) },
                 icon = {
                     Image(
-                        painter = painterResource(com.rach.texttospeechbyvishlabs.R.drawable.setting_svgrepo_com),
+                        painter = painterResource(R.drawable.setting_svgrepo_com),
                         contentDescription = "Setting"
                     )
                 },

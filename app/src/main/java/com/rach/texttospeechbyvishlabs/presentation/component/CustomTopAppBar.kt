@@ -1,4 +1,4 @@
-package com.rach.texttospeechbyvishlabs.component
+package com.rach.texttospeechbyvishlabs.presentation.component
 
 
 import androidx.compose.foundation.layout.fillMaxWidth
