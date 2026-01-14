@@ -2,6 +2,7 @@ package com.rach.texttospeechbyvishlabs.data.tts
 
 import android.content.Context
 import android.media.AudioAttributes
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
@@ -169,4 +170,46 @@ class AdvancedTTSManager(
         tts.stop()
         tts.shutdown()
     }
+
+    fun saveToUri(
+        text: String,
+        uri: Uri,
+        context: Context,
+        onDone: () -> Unit
+    ) {
+        if (!isReady || text.isBlank()) return
+
+        val tempFile = File(context.cacheDir, "tts_temp.wav")
+
+        tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onDone(utteranceId: String?) {
+                try {
+                    val inputStream = tempFile.inputStream()
+                    val outputStream = context.contentResolver.openOutputStream(uri)
+
+                    inputStream.copyTo(outputStream!!)
+
+                    inputStream.close()
+                    outputStream.close()
+
+                    Handler(Looper.getMainLooper()).post { onDone() }
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+            override fun onStart(utteranceId: String?) {}
+            override fun onError(utteranceId: String?) {}
+        })
+
+        val params = Bundle().apply {
+            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "save_temp")
+        }
+
+        // This works on API 21+
+        tts.synthesizeToFile(text, params, tempFile, "save_temp")
+    }
+
+
 }

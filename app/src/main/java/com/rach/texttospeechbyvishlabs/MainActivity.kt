@@ -38,6 +38,14 @@ import com.rach.texttospeechbyvishlabs.presentation.screen.LanguageSettingsScree
 import com.rach.texttospeechbyvishlabs.presentation.screen.PrivacyPolicyScreen
 import com.rach.texttospeechbyvishlabs.presentation.screen.SettingsScreen
 import com.rach.texttospeechbyvishlabs.presentation.screen.VoiceCategoryScreen
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.app.Activity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.rach.texttospeechbyvishlabs.ui.theme.HabitChangeTheme
 import kotlinx.coroutines.launch
 
@@ -62,7 +70,36 @@ class MainActivity : AppCompatActivity() {
 fun AdvancedTTSScreen() {
     val context = LocalContext.current
 
+
+    val activity = context as Activity
+    var text by remember { mutableStateOf("") }
+    var showSaveDialog by remember { mutableStateOf(false) }
+    var isSaving by remember { mutableStateOf(false) }
+    val saveScope = rememberCoroutineScope()
+
+
     val ttsManager = remember { AdvancedTTSManager(context) }
+
+
+    val createFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("audio/wav")
+    ) { uri ->
+        if (uri != null) {
+            ttsManager.saveToUri(
+                text = text,
+                uri = uri,
+                context = context
+            ) {
+                isSaving = false
+                Toast.makeText(context, "Saved successfully", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            isSaving = false
+        }
+    }
+
+
+
     val repo = remember { TtsRepositoryImpl(ttsManager) }
 
     val viewModel = remember {
@@ -76,7 +113,6 @@ fun AdvancedTTSScreen() {
     }
 
     var selectedIndex by remember { mutableStateOf(0) }
-    var text by remember { mutableStateOf("") }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var currentScreen by remember { mutableStateOf(DrawerScreen.HOME) }
@@ -112,6 +148,79 @@ fun AdvancedTTSScreen() {
         }
     }
 
+    if (showSaveDialog) {
+        Dialog(onDismissRequest = { showSaveDialog = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.95f)
+                    .wrapContentHeight(),
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+
+
+                    Text(
+                        text = "Do you want to save the audio data?",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = { showSaveDialog = false }) {
+                            Text("Cancel")
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Button(onClick = {
+                            showSaveDialog = false
+                            isSaving = true
+                            saveScope.launch {
+                                kotlinx.coroutines.delay(300) //
+                                createFileLauncher.launch("tts_${System.currentTimeMillis()}.wav")
+                            }
+                        }) {
+                            Text("Save")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (isSaving) {
+        Dialog(
+            onDismissRequest = {},
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(140.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(20.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(strokeWidth = 4.dp)
+            }
+        }
+    }
+
+
+
+
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -146,15 +255,10 @@ fun AdvancedTTSScreen() {
                                 text = ""
                             }
                             2 -> {
-                                ttsManager.saveToDownloads(
-                                    text = text,
-                                    fileName = "tts_${System.currentTimeMillis()}"
-                                ) {
-                                    Toast.makeText(
-                                        context,
-                                        "Saved in Download folder",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                if (text.isBlank()) {
+                                    Toast.makeText(context, "No characters entered", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    showSaveDialog = true
                                 }
                             }
                             3 -> {
@@ -227,8 +331,10 @@ fun AdvancedTTSScreen() {
 
             }
         }
+
     }
 }
+
 
 enum class DrawerScreen(val title: String, val icon: ImageVector) {
     HOME("Home", Icons.Default.Home),
