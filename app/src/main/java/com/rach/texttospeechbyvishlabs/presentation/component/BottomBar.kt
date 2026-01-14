@@ -3,6 +3,8 @@ package com.rach.texttospeechbyvishlabs.presentation.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -61,13 +63,11 @@ fun BottomNavBar(
                 selected = selectedItem == 3,
                 onClick = { onItemSelected(3) },
                 icon = {
-                    Image(
-                        painter = painterResource(R.drawable.share_svgrepo_com),
-                        contentDescription = "Share"
-                    )
+                    Icon(Icons.Default.Add, contentDescription = "Add")
                 },
-                label = { Text("Share") }
+                label = { Text("Add") }
             )
+
 
             NavigationBarItem(
                 selected = selectedItem == 4,

@@ -40,6 +40,11 @@ import com.rach.texttospeechbyvishlabs.presentation.screen.SettingsScreen
 import com.rach.texttospeechbyvishlabs.presentation.screen.VoiceCategoryScreen
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -79,6 +84,24 @@ fun AdvancedTTSScreen() {
 
 
     val ttsManager = remember { AdvancedTTSManager(context) }
+
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val image = InputImage.fromFilePath(context, it)
+            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+            recognizer.process(image)
+                .addOnSuccessListener { visionText ->
+                    text = text + "\n" + visionText.text
+                }
+                .addOnFailureListener {
+                    Toast.makeText(context, "Failed to extract text", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
 
 
     val createFileLauncher = rememberLauncherForActivityResult(
@@ -262,17 +285,9 @@ fun AdvancedTTSScreen() {
                                 }
                             }
                             3 -> {
-                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(
-                                        Intent.EXTRA_TEXT,
-                                        "Check out this app:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
-                                    )
-                                }
-                                context.startActivity(
-                                    Intent.createChooser(shareIntent, "Share app via")
-                                )
+                                galleryLauncher.launch("image/*")
                             }
+
                             4 -> {
                                 currentScreen = DrawerScreen.SETTINGS
                             }
