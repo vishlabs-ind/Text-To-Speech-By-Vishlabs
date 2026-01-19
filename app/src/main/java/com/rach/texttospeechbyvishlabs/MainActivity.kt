@@ -40,6 +40,8 @@ import com.rach.texttospeechbyvishlabs.presentation.screen.SettingsScreen
 import com.rach.texttospeechbyvishlabs.presentation.screen.VoiceCategoryScreen
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import com.google.mlkit.vision.common.InputImage
@@ -51,6 +53,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.rach.texttospeechbyvishlabs.domain.usecase.SpeakParagraphsUseCase
 import com.rach.texttospeechbyvishlabs.ui.theme.HabitChangeTheme
 import kotlinx.coroutines.launch
 
@@ -80,6 +84,7 @@ fun AdvancedTTSScreen() {
     var text by remember { mutableStateOf("") }
     var showSaveDialog by remember { mutableStateOf(false) }
     var isSaving by remember { mutableStateOf(false) }
+    var isExtracting by remember { mutableStateOf(false) }
     val saveScope = rememberCoroutineScope()
 
 
@@ -90,18 +95,46 @@ fun AdvancedTTSScreen() {
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
+            isExtracting = true
+
             val image = InputImage.fromFilePath(context, it)
             val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
             recognizer.process(image)
                 .addOnSuccessListener { visionText ->
                     text = text + "\n" + visionText.text
+                    isExtracting = false
                 }
                 .addOnFailureListener {
+                    isExtracting = false
                     Toast.makeText(context, "Failed to extract text", Toast.LENGTH_SHORT).show()
                 }
         }
     }
+
+
+    if (isExtracting) {
+        Dialog(
+            onDismissRequest = {},
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(140.dp)
+                    .background(
+                        MaterialTheme.colorScheme.surface,
+                        RoundedCornerShape(20.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+    }
+
 
 
     val createFileLauncher = rememberLauncherForActivityResult(
@@ -110,12 +143,12 @@ fun AdvancedTTSScreen() {
         if (uri != null) {
             ttsManager.saveToUri(
                 text = text,
-                uri = uri,
-                context = context
+                uri = uri
             ) {
                 isSaving = false
                 Toast.makeText(context, "Saved successfully", Toast.LENGTH_SHORT).show()
             }
+
         } else {
             isSaving = false
         }
@@ -131,10 +164,13 @@ fun AdvancedTTSScreen() {
             StopSpeakingUseCase(repo),
             ChangeLanguageUseCase(repo),
             ChangeVoiceCategoryUseCase(repo),
-            SaveAudioUseCase(repo)
-        )
+            SaveAudioUseCase(repo),
+            SpeakParagraphsUseCase(repo)
+           )
     }
 
+
+    val speakingIndex by viewModel.speakingIndex.collectAsState()
     var selectedIndex by remember { mutableStateOf(0) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -299,10 +335,14 @@ fun AdvancedTTSScreen() {
             when (currentScreen) {
                 DrawerScreen.HOME -> HomeScreen(
                     paddingValues = paddingValues,
-                    onPlayClick = {viewModel.speak(text)},
                     text = text,
-                    onTextChange = { text = it }
+                    onTextChange = { text = it },
+                    speakingIndex = speakingIndex,
+                    onPlayClick = {
+                        viewModel.speakWithHighlight(text)
+                    }
                 )
+
                 DrawerScreen.LANGUAGE_SETTINGS -> LanguageSettingsScreen(
                     paddingValues = paddingValues,
                     selectedLanguageIndex = selectedLanguageIndex,

@@ -22,5 +22,19 @@ class TtsRepositoryImpl(
         ttsManager.applyVoiceCategory(category)
 
     override fun saveToDownloads(text: String, fileName: String) =
-        ttsManager.saveToDownloads(text, fileName) {}
+        ttsManager.saveToDownloads(text, fileName)
+
+    override fun speakWithCallback(text: String, onDone: () -> Unit) {
+        ttsManager.speakWithCallback(text, onDone)
+    }
+
+    override fun speakParagraphs(
+        paragraphs: List<String>,
+        onIndexChange: (Int) -> Unit,
+        onFinished: () -> Unit
+    ) {
+        ttsManager.speakParagraphs(paragraphs, onIndexChange, onFinished)
+    }
+
+
 }

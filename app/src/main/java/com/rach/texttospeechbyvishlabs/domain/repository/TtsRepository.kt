@@ -9,4 +9,12 @@ interface TtsRepository {
     fun setLanguage(locale: Locale)
     fun setVoiceCategory(category: VoiceCategory)
     fun saveToDownloads(text: String, fileName: String)
+    fun speakWithCallback(text: String, onDone: () -> Unit)
+    fun speakParagraphs(
+        paragraphs: List<String>,
+        onIndexChange: (Int) -> Unit,
+        onFinished: () -> Unit
+    )
+
+
 }

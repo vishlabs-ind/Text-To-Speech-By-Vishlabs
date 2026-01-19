@@ -6,4 +6,9 @@ class SpeakTextUseCase(
     private val repo: TtsRepository
 ) {
     operator fun invoke(text: String) = repo.speak(text)
+
+    fun speakWithCallback(text: String, onDone: () -> Unit) {
+        repo.speakWithCallback(text, onDone)
+    }
+
 }
