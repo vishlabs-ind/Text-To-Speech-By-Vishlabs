@@ -1,22 +1,28 @@
 package com.rach.texttospeechbyvishlabs.presentation.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rach.texttospeechbyvishlabs.domain.model.VoiceCategory
 import com.rach.texttospeechbyvishlabs.domain.repository.TtsRepository
 import com.rach.texttospeechbyvishlabs.domain.usecase.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
+import javax.inject.Inject
 
-class TtsViewModel(
+@HiltViewModel
+class TtsViewModel @Inject constructor(
     private val speakText: SpeakTextUseCase,
     private val stopSpeaking: StopSpeakingUseCase,
     private val changeLanguage: ChangeLanguageUseCase,
     private val changeVoice: ChangeVoiceCategoryUseCase,
     private val saveAudio: SaveAudioUseCase,
-    private val speakParagraphsUseCase: SpeakParagraphsUseCase
+    private val speakParagraphsUseCase: SpeakParagraphsUseCase,
+    private val repository: TtsRepository
+
 ) : ViewModel() {
 
     private val _speakingIndex = MutableStateFlow(-1)
@@ -31,6 +37,15 @@ class TtsViewModel(
     fun setVoice(category: VoiceCategory) = changeVoice(category)
 
     fun save(text: String, name: String) = saveAudio(text, name)
+
+    fun stopTts() {
+        stopSpeaking()
+    }
+
+    fun saveToUri(text: String, uri: Uri) {
+        repository.saveToUri(text, uri)
+    }
+
 
     fun speakWithHighlight(text: String) {
         val lines = text.split("\n")

@@ -1,5 +1,6 @@
 package com.rach.texttospeechbyvishlabs.data.repository
 
+import android.net.Uri
 import com.rach.texttospeechbyvishlabs.data.tts.AdvancedTTSManager
 import com.rach.texttospeechbyvishlabs.domain.model.VoiceCategory
 import com.rach.texttospeechbyvishlabs.domain.repository.TtsRepository
@@ -27,6 +28,11 @@ class TtsRepositoryImpl(
     override fun speakWithCallback(text: String, onDone: () -> Unit) {
         ttsManager.speakWithCallback(text, onDone)
     }
+
+    override fun saveToUri(text: String, uri: Uri) {
+        ttsManager.saveToUri(text, uri) {}
+    }
+
 
     override fun speakParagraphs(
         paragraphs: List<String>,

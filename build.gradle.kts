@@ -7,4 +7,6 @@ plugins {
     alias(libs.plugins.dagger.plugin) apply false
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.kotlin.serialization) apply false
+
+    id("com.google.devtools.ksp") version "2.0.21-1.0.27" apply false
 }

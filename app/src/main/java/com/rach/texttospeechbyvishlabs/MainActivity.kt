@@ -53,11 +53,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rach.texttospeechbyvishlabs.domain.usecase.SpeakParagraphsUseCase
 import com.rach.texttospeechbyvishlabs.ui.theme.HabitChangeTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +84,7 @@ fun AdvancedTTSScreen() {
     val context = LocalContext.current
 
 
-    val activity = context as Activity
+    val activity = context as? Activity
     var text by remember { mutableStateOf("") }
     var showSaveDialog by remember { mutableStateOf(false) }
     var isSaving by remember { mutableStateOf(false) }
@@ -88,7 +92,6 @@ fun AdvancedTTSScreen() {
     val saveScope = rememberCoroutineScope()
 
 
-    val ttsManager = remember { AdvancedTTSManager(context) }
 
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -135,39 +138,26 @@ fun AdvancedTTSScreen() {
         }
     }
 
-
+    val viewModel: TtsViewModel = hiltViewModel()
 
     val createFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("audio/wav")
     ) { uri ->
         if (uri != null) {
-            ttsManager.saveToUri(
-                text = text,
-                uri = uri
-            ) {
-                isSaving = false
-                Toast.makeText(context, "Saved successfully", Toast.LENGTH_SHORT).show()
-            }
+            isSaving = true
+            viewModel.saveToUri(text, uri)
 
-        } else {
+            isSaving = false
+            Toast.makeText(context, "Saved successfully", Toast.LENGTH_SHORT).show()
+        }
+        else {
             isSaving = false
         }
     }
 
 
 
-    val repo = remember { TtsRepositoryImpl(ttsManager) }
 
-    val viewModel = remember {
-        TtsViewModel(
-            SpeakTextUseCase(repo),
-            StopSpeakingUseCase(repo),
-            ChangeLanguageUseCase(repo),
-            ChangeVoiceCategoryUseCase(repo),
-            SaveAudioUseCase(repo),
-            SpeakParagraphsUseCase(repo)
-           )
-    }
 
 
     val speakingIndex by viewModel.speakingIndex.collectAsState()
@@ -203,7 +193,7 @@ fun AdvancedTTSScreen() {
 
     DisposableEffect(Unit) {
         onDispose {
-            ttsManager.shutdown()
+            viewModel.stop()
         }
     }
 
@@ -310,7 +300,7 @@ fun AdvancedTTSScreen() {
                                 currentScreen = DrawerScreen.HOME
                             }
                             1 -> {
-                                ttsManager.stop()
+                                viewModel.stop()
                                 text = ""
                             }
                             2 -> {
