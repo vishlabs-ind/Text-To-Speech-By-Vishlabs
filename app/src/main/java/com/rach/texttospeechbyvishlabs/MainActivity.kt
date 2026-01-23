@@ -48,6 +48,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import android.app.Activity
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
@@ -59,6 +60,7 @@ import com.rach.texttospeechbyvishlabs.domain.usecase.SpeakParagraphsUseCase
 import com.rach.texttospeechbyvishlabs.ui.theme.HabitChangeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 
 @AndroidEntryPoint
@@ -356,8 +358,19 @@ fun AdvancedTTSScreen() {
 
                 DrawerScreen.ABOUT_US -> AboutUsScreen(paddingValues = paddingValues, onBackClick = {
                     currentScreen = DrawerScreen.SETTINGS})
-                DrawerScreen.PRIVACY_POLICY -> PrivacyPolicyScreen(paddingValues = paddingValues, onBackClick = {currentScreen = DrawerScreen.SETTINGS})
-                //  DrawerScreen.PROFILE -> ProfileScreen(paddingValues = paddingValues)
+
+                DrawerScreen.PRIVACY_POLICY -> {
+                    LaunchedEffect(Unit) {
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            "https://sites.google.com/view/text-to-speech-voice/home?authuser=1".toUri()
+                        )
+                        context.startActivity(intent)
+
+                        currentScreen = DrawerScreen.SETTINGS
+                    }
+                }
+
                 DrawerScreen.LOGOUT -> {
                     LaunchedEffect(Unit) {
                        // Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
@@ -452,7 +465,7 @@ fun BannerAdView() {
         factory = { context ->
             AdView(context).apply {
                 setAdSize(AdSize.LARGE_BANNER)
-                adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                adUnitId = "ca-app-pub-2441322063617280/5872375754"
                 loadAd(AdRequest.Builder().build())
             }
         }
@@ -478,5 +491,4 @@ fun BackTopBar(
     )
 }
 
-//Vishal
 
