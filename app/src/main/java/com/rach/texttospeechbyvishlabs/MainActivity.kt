@@ -1,66 +1,95 @@
 package com.rach.texttospeechbyvishlabs
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.core.net.toUri
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
-import com.rach.texttospeechbyvishlabs.presentation.component.BottomNavBar
-import com.rach.texttospeechbyvishlabs.data.repository.TtsRepositoryImpl
-import com.rach.texttospeechbyvishlabs.data.tts.AdvancedTTSManager
-import com.rach.texttospeechbyvishlabs.domain.usecase.ChangeLanguageUseCase
-import com.rach.texttospeechbyvishlabs.domain.usecase.ChangeVoiceCategoryUseCase
-import com.rach.texttospeechbyvishlabs.domain.usecase.SaveAudioUseCase
-import com.rach.texttospeechbyvishlabs.domain.usecase.SpeakTextUseCase
-import com.rach.texttospeechbyvishlabs.domain.usecase.StopSpeakingUseCase
-import com.rach.texttospeechbyvishlabs.presentation.viewmodel.TtsViewModel
-import com.rach.texttospeechbyvishlabs.domain.model.VoiceCategory
-import com.rach.texttospeechbyvishlabs.domain.model.languageOptions
-import com.rach.texttospeechbyvishlabs.presentation.screen.AboutUsScreen
-import com.rach.texttospeechbyvishlabs.presentation.screen.HomeScreen
-import com.rach.texttospeechbyvishlabs.presentation.screen.LanguageSettingsScreen
-import com.rach.texttospeechbyvishlabs.presentation.screen.PrivacyPolicyScreen
-import com.rach.texttospeechbyvishlabs.presentation.screen.SettingsScreen
-import com.rach.texttospeechbyvishlabs.presentation.screen.VoiceCategoryScreen
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import android.app.Activity
-import android.net.Uri
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.rach.texttospeechbyvishlabs.domain.usecase.SpeakParagraphsUseCase
+import com.rach.texttospeechbyvishlabs.domain.model.VoiceCategory
+import com.rach.texttospeechbyvishlabs.domain.model.languageOptions
+import com.rach.texttospeechbyvishlabs.presentation.component.BottomNavBar
+import com.rach.texttospeechbyvishlabs.presentation.screen.AboutUsScreen
+import com.rach.texttospeechbyvishlabs.presentation.screen.HomeScreen
+import com.rach.texttospeechbyvishlabs.presentation.screen.LanguageSettingsScreen
+import com.rach.texttospeechbyvishlabs.presentation.screen.SettingsScreen
+import com.rach.texttospeechbyvishlabs.presentation.screen.VoiceCategoryScreen
+import com.rach.texttospeechbyvishlabs.presentation.viewmodel.TtsViewModel
 import com.rach.texttospeechbyvishlabs.ui.theme.HabitChangeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import androidx.core.net.toUri
 
 
 @AndroidEntryPoint
@@ -92,8 +121,6 @@ fun AdvancedTTSScreen() {
     var isSaving by remember { mutableStateOf(false) }
     var isExtracting by remember { mutableStateOf(false) }
     val saveScope = rememberCoroutineScope()
-
-
 
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -151,15 +178,10 @@ fun AdvancedTTSScreen() {
 
             isSaving = false
             Toast.makeText(context, "Saved successfully", Toast.LENGTH_SHORT).show()
-        }
-        else {
+        } else {
             isSaving = false
         }
     }
-
-
-
-
 
 
     val speakingIndex by viewModel.speakingIndex.collectAsState()
@@ -200,7 +222,8 @@ fun AdvancedTTSScreen() {
     }
 
     if (showSaveDialog) {
-        Dialog(onDismissRequest = { showSaveDialog = false },
+        Dialog(
+            onDismissRequest = { showSaveDialog = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             Card(
@@ -301,17 +324,24 @@ fun AdvancedTTSScreen() {
                             0 -> {
                                 currentScreen = DrawerScreen.HOME
                             }
+
                             1 -> {
                                 viewModel.stop()
                                 text = ""
                             }
+
                             2 -> {
                                 if (text.isBlank()) {
-                                    Toast.makeText(context, "No characters entered", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "No characters entered",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 } else {
                                     showSaveDialog = true
                                 }
                             }
+
                             3 -> {
                                 galleryLauncher.launch("image/*")
                             }
@@ -356,8 +386,11 @@ fun AdvancedTTSScreen() {
                     onBackClick = { currentScreen = DrawerScreen.SETTINGS }
                 )
 
-                DrawerScreen.ABOUT_US -> AboutUsScreen(paddingValues = paddingValues, onBackClick = {
-                    currentScreen = DrawerScreen.SETTINGS})
+                DrawerScreen.ABOUT_US -> AboutUsScreen(
+                    paddingValues = paddingValues,
+                    onBackClick = {
+                        currentScreen = DrawerScreen.SETTINGS
+                    })
 
                 DrawerScreen.PRIVACY_POLICY -> {
                     LaunchedEffect(Unit) {
@@ -373,7 +406,7 @@ fun AdvancedTTSScreen() {
 
                 DrawerScreen.LOGOUT -> {
                     LaunchedEffect(Unit) {
-                       // Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
+                        // Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
                         currentScreen = DrawerScreen.HOME
                     }
                 }
@@ -451,10 +484,6 @@ fun DrawerContent(
         }
     }
 }
-
-
-
-
 
 
 @Composable
