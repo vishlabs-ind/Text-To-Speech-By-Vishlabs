@@ -41,6 +41,7 @@ import com.rach.texttospeechbyvishlabs.presentation.screen.VoiceCategoryScreen
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import android.app.Activity
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
@@ -48,6 +49,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rach.texttospeechbyvishlabs.ui.theme.HabitChangeTheme
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -311,8 +313,19 @@ fun AdvancedTTSScreen() {
 
                 DrawerScreen.ABOUT_US -> AboutUsScreen(paddingValues = paddingValues, onBackClick = {
                     currentScreen = DrawerScreen.SETTINGS})
-                DrawerScreen.PRIVACY_POLICY -> PrivacyPolicyScreen(paddingValues = paddingValues, onBackClick = {currentScreen = DrawerScreen.SETTINGS})
-                //  DrawerScreen.PROFILE -> ProfileScreen(paddingValues = paddingValues)
+
+                DrawerScreen.PRIVACY_POLICY -> {
+                    LaunchedEffect(Unit) {
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            "https://sites.google.com/view/text-to-speech-voice/home?authuser=1".toUri()
+                        )
+                        context.startActivity(intent)
+
+                        currentScreen = DrawerScreen.SETTINGS
+                    }
+                }
+
                 DrawerScreen.LOGOUT -> {
                     LaunchedEffect(Unit) {
                        // Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
@@ -407,7 +420,7 @@ fun BannerAdView() {
         factory = { context ->
             AdView(context).apply {
                 setAdSize(AdSize.LARGE_BANNER)
-                adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                adUnitId = "ca-app-pub-2441322063617280/5872375754"
                 loadAd(AdRequest.Builder().build())
             }
         }
