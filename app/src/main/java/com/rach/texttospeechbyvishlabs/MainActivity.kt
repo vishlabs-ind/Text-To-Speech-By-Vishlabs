@@ -301,10 +301,6 @@ fun AdvancedTTSScreen() {
         }
     }
 
-
-
-
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -367,9 +363,12 @@ fun AdvancedTTSScreen() {
             when (currentScreen) {
                 DrawerScreen.HOME -> HomeScreen(
                     paddingValues = paddingValues,
-                    onPlayClick = {vm.speak(text)},
                     text = text,
-                    onTextChange = { text = it }
+                    onTextChange = { text = it },
+                    speakingIndex = speakingIndex,
+                    onPlayClick = {
+                        viewModel.speakWithHighlight(text)
+                    }
                 )
 
                 DrawerScreen.LANGUAGE_SETTINGS -> LanguageSettingsScreen(
