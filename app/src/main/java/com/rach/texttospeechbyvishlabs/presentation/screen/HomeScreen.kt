@@ -6,12 +6,16 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.TextButton
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.rach.texttospeechbyvishlabs.BannerAdView
 import androidx.compose.ui.text.input.TextFieldValue
 
@@ -21,6 +25,7 @@ fun HomeScreen(
     paddingValues: PaddingValues,
     text: String,
     onTextChange: (String) -> Unit,
+    speakingIndex: Int,
     onPlayClick: () -> Unit
 ) {
     Column(
@@ -86,33 +91,33 @@ fun HomeScreen(
 
                 val highlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
 
-//                val annotatedText = remember(text, speakingIndex) {
-//                    buildAnnotatedString {
-//                        val highlightedLine =
-//                            if (speakingIndex in speakableLineIndexes.indices)
-//                                speakableLineIndexes[speakingIndex]
-//                            else -1
-//
-//                        lines.forEachIndexed { lineIndex, line ->
-//                            if (lineIndex == highlightedLine) {
-//                                withStyle(SpanStyle(background = highlightColor)) {
-//                                    append(line)
-//                                }
-//                            } else {
-//                                append(line)
-//                            }
-//                            if (lineIndex != lines.lastIndex) append("\n")
-//                        }
-//                    }
-//                }
-//
-//
-//                LaunchedEffect(annotatedText) {
-//                    fieldValue = fieldValue.copy(
-//                        annotatedString = annotatedText,
-//                        selection = fieldValue.selection
-//                    )
-//                }
+                val annotatedText = remember(text, speakingIndex) {
+                    buildAnnotatedString {
+                        val highlightedLine =
+                            if (speakingIndex in speakableLineIndexes.indices)
+                                speakableLineIndexes[speakingIndex]
+                            else -1
+
+                        lines.forEachIndexed { lineIndex, line ->
+                            if (lineIndex == highlightedLine) {
+                                withStyle(SpanStyle(background = highlightColor)) {
+                                    append(line)
+                                }
+                            } else {
+                                append(line)
+                            }
+                            if (lineIndex != lines.lastIndex) append("\n")
+                        }
+                    }
+                }
+
+
+                LaunchedEffect(annotatedText) {
+                    fieldValue = fieldValue.copy(
+                        annotatedString = annotatedText,
+                        selection = fieldValue.selection
+                    )
+                }
 
                 OutlinedTextField(
                     value = fieldValue,

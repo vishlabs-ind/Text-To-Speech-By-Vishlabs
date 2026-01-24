@@ -83,7 +83,4 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     implementation("com.google.mlkit:text-recognition:16.0.0")
-
-
-
 }
