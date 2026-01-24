@@ -19,6 +19,4 @@ interface TtsRepository {
         onIndexChange: (Int) -> Unit,
         onFinished: () -> Unit
     )
-
-
 }
