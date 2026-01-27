@@ -75,7 +75,7 @@ class TtsViewModel @Inject constructor(
         speakJob = viewModelScope.launch {
             speakParagraphsUseCase(
                 paragraphs = paragraphs,
-                startIndex = startIndex,   // 👈 this is key
+                startIndex = startIndex,
 
                 onIndexChange = { index ->
                     val realLineIndex = speakableMap[index]
@@ -116,7 +116,7 @@ class TtsViewModel @Inject constructor(
 
     fun togglePlayPause(text: String) {
         if (_isPlaying.value) {
-            speakJob?.cancel()     // ✅ critical
+            speakJob?.cancel()
             stopSpeaking()
             _isPlaying.value = false
         } else {
