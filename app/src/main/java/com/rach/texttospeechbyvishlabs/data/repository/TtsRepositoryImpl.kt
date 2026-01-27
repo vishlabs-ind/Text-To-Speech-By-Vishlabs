@@ -36,10 +36,11 @@ class TtsRepositoryImpl(
 
     override fun speakParagraphs(
         paragraphs: List<String>,
+        startIndex : Int,
         onIndexChange: (Int) -> Unit,
         onFinished: () -> Unit
     ) {
-        ttsManager.speakParagraphs(paragraphs, onIndexChange, onFinished)
+        ttsManager.speakParagraphs(paragraphs, startIndex, onIndexChange, onFinished)
     }
 
 

@@ -7,9 +7,10 @@ class SpeakParagraphsUseCase(
 ) {
     operator fun invoke(
         paragraphs: List<String>,
+        startIndex: Int = 0,
         onIndexChange: (Int) -> Unit,
         onFinished: () -> Unit
     ) {
-        repository.speakParagraphs(paragraphs, onIndexChange, onFinished)
+        repository.speakParagraphs(paragraphs,startIndex, onIndexChange, onFinished)
     }
 }

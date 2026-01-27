@@ -100,12 +100,13 @@ class AdvancedTTSManager(
 
     fun speakParagraphs(
         paragraphs: List<String>,
+        startIndex: Int = 0,
         onIndexChange: (Int) -> Unit,
         onFinished: () -> Unit
     ) {
         if (!isReady || paragraphs.isEmpty()) return
 
-        var index = 0
+        var index = startIndex.coerceIn(0, paragraphs.lastIndex)
 
         fun speakNext() {
             if (index >= paragraphs.size) {
@@ -122,6 +123,7 @@ class AdvancedTTSManager(
             }
 
             tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+
                 override fun onStart(id: String?) {
                     if (id == utteranceId) {
                         Handler(Looper.getMainLooper()).post {

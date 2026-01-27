@@ -192,6 +192,8 @@ fun AdvancedTTSScreen() {
     val vm : TtsViewModels = remember { TtsViewModels(ttsManagers) }
 
     val speakingIndex by viewModel.speakingIndex.collectAsState()
+    val isPlaying by viewModel.isPlaying.collectAsState()
+
     var selectedIndex by remember { mutableStateOf(0) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -361,14 +363,15 @@ fun AdvancedTTSScreen() {
             }
         ) { paddingValues ->
             when (currentScreen) {
-                DrawerScreen.HOME -> HomeScreen(
+                DrawerScreen.HOME ->  HomeScreen(
                     paddingValues = paddingValues,
                     text = text,
                     onTextChange = { text = it },
                     speakingIndex = speakingIndex,
-                    onPlayClick = {
-                        viewModel.speakWithHighlight(text)
-                    }
+                    isPlaying = isPlaying,
+                    onPlayPause = { viewModel.togglePlayPause(text) },
+                    onNext = { viewModel.playNext(text) },
+                    onPrevious = { viewModel.playPrevious(text) }
                 )
 
                 DrawerScreen.LANGUAGE_SETTINGS -> LanguageSettingsScreen(

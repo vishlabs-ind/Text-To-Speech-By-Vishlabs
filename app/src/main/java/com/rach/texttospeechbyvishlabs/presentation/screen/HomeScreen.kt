@@ -1,9 +1,16 @@
 package com.rach.texttospeechbyvishlabs.presentation.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,7 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rach.texttospeechbyvishlabs.BannerAdView
 import androidx.compose.ui.text.input.TextFieldValue
-
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 
 @Composable
 fun HomeScreen(
@@ -26,8 +34,12 @@ fun HomeScreen(
     text: String,
     onTextChange: (String) -> Unit,
     speakingIndex: Int,
-    onPlayClick: () -> Unit
-) {
+    isPlaying: Boolean,
+    onPlayPause: () -> Unit,
+    onNext: () -> Unit,
+    onPrevious: () -> Unit
+)
+ {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -93,13 +105,8 @@ fun HomeScreen(
 
                 val annotatedText = remember(text, speakingIndex) {
                     buildAnnotatedString {
-                        val highlightedLine =
-                            if (speakingIndex in speakableLineIndexes.indices)
-                                speakableLineIndexes[speakingIndex]
-                            else -1
-
                         lines.forEachIndexed { lineIndex, line ->
-                            if (lineIndex == highlightedLine) {
+                            if (lineIndex == speakingIndex) {
                                 withStyle(SpanStyle(background = highlightColor)) {
                                     append(line)
                                 }
@@ -110,6 +117,7 @@ fun HomeScreen(
                         }
                     }
                 }
+
 
 
                 LaunchedEffect(annotatedText) {
@@ -148,11 +156,54 @@ fun HomeScreen(
             )
         }
 
-        Button(
-            onClick = onPlayClick,
-            modifier = Modifier.fillMaxWidth()
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 6.dp),
+            shape = RoundedCornerShape(20.dp),
+            tonalElevation = 2.dp
         ) {
-            Text("Play 🔊")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                IconButton(onClick = onPrevious) {
+                    Icon(
+                        imageVector = Icons.Default.SkipPrevious,
+                        contentDescription = "Previous"
+                    )
+                }
+
+                IconButton(
+                    onClick = onPlayPause,
+                    modifier = Modifier
+                        .size(42.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        contentDescription = "Play/Pause",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+
+                IconButton(onClick = onNext) {
+                    Icon(
+                        imageVector = Icons.Default.SkipNext,
+                        contentDescription = "Next"
+                    )
+                }
+            }
         }
+
+
+
     }
 }

@@ -16,6 +16,7 @@ interface TtsRepository {
 
     fun speakParagraphs(
         paragraphs: List<String>,
+        startIndex: Int,
         onIndexChange: (Int) -> Unit,
         onFinished: () -> Unit
     )
