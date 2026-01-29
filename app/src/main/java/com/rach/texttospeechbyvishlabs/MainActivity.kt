@@ -367,7 +367,7 @@ fun AdvancedTTSScreen() {
                     onTextChange = { text = it },
                     speakingIndex = speakingIndex,
                     onPlayClick = {
-                        viewModel.speakWithHighlight(text)
+                        vm.speak(text)
                     }
                 )
 
